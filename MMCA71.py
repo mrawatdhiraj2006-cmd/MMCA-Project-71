@@ -54,10 +54,11 @@ It helps analyze how:
 - Number of doctors  
 - Waiting time  
 
-affect overall system performance.
 
 The goal is to find the **optimal number of doctors** to minimize waiting time and improve efficiency.
 """)
+
+
 
 st.subheader("🔍 Key System Insights")
 
@@ -93,6 +94,8 @@ st.success(f"""
 
 Current system utilization is **{rho:.2f}**
 """)
+
+
 
 doctors_list = list(range(1, doctors + 1))
 
@@ -130,6 +133,8 @@ for d in doctors_list:
     else:
         efficiency.append("Overloaded")
 
+
+
 st.subheader("📈 Doctors vs Average Waiting Time")
 
 fig, ax = plt.subplots()
@@ -137,6 +142,8 @@ ax.plot(doctors_list, avg_waits, marker='o')
 ax.set_xlabel("Number of Doctors")
 ax.set_ylabel("Average Waiting Time (minutes)")
 st.pyplot(fig)
+
+
 
 st.subheader("📊 Detailed Performance Table")
 
@@ -159,6 +166,8 @@ min_wait = avg_waits[best_index]
 st.success(f"✅ Optimal number of doctors (c): {best_doctors}")
 st.write(f"⏱ Minimum average waiting time: {min_wait:.2f} minutes")
 
+
+
 st.subheader("📊 Waiting Time Distribution")
 
 _, _, wait_times = simulate_queue(patient_rate, service_rate, doctors)
@@ -169,6 +178,51 @@ ax2.set_xlabel("Waiting Time (minutes)")
 ax2.set_ylabel("Number of Patients")
 
 st.pyplot(fig2)
+
+st.subheader("📘 Mathematical Model")
+
+st.latex(r"\rho = \frac{\lambda}{c \cdot \mu}")
+st.latex(r"W_q = \frac{L_q}{\lambda}")
+st.latex(r"W = W_q + \frac{1}{\mu}")
+
+st.markdown("""
+**Where:**
+
+• λ = Patient Arrival Rate (patients/hour)  
+• μ = Service Rate per Doctor (patients/hour)  
+• c = Number of Doctors  
+• Lq = Average number of patients in queue  
+• Wq = Waiting time in queue (hours)  
+• W = Total time in system (hours)  
+• ρ = System utilization  
+""")
+
+st.subheader("⚙️ System Utilization")
+
+rho = patient_rate / (service_rate * best_doctors)
+
+Lq = 2
+Wq = Lq / patient_rate
+W = Wq + (1 / service_rate)
+
+st.latex(r"\rho = \frac{\lambda}{c \cdot \mu} = %.2f" % rho)
+st.latex(r"W_q = \frac{L_q}{\lambda} = %.2f" % Wq)
+st.latex(r"W = W_q + \frac{1}{\mu} = %.2f" % W)
+
+st.markdown(f"""
+**Step-by-step calculation:**
+
+ρ = {patient_rate} / ({best_doctors} × {service_rate}) = **{rho:.2f}**
+
+Wq = Lq / λ = {Lq} / {patient_rate} = **{Wq:.2f} hours**
+
+W = Wq + 1/μ = {Wq:.2f} + 1/{service_rate} = **{W:.2f} hours**
+""")
+
+if rho >= 1:
+    st.error("🚨 System is UNSTABLE (Overloaded)")
+else:
+    st.success("✅ System is STABLE")
 
 st.subheader("📌 Conclusion")
 
